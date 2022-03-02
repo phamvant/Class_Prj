@@ -3,38 +3,65 @@
 // LVGL VERSION: 8.2
 // PROJECT: LVGL_demo
 
-#ifndef _LVGL_DEMO_UI_HELPERS_H
-#define _LVGL_DEMO_UI_HELPERS_H
+#ifndef UI_SHARE_H_INCLUDED
+#define UI_SHARE_H_INCLUDED
 
-LV_IMG_DECLARE(night_cloudy);
-LV_IMG_DECLARE(rain_cloud);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "../lvgl/lvgl.h"
 
 #define WIFI_NETWORK "4T-Wifi-Connection"
 #define WIFI_PASSWORD "88888888"
 
-#include "../lvgl/lvgl.h"
+
+LV_IMG_DECLARE(night_cloudy);
+LV_IMG_DECLARE(rain_cloud);
+LV_IMG_DECLARE(w01d);
+LV_IMG_DECLARE(w02d);
+LV_IMG_DECLARE(w03d);
+LV_IMG_DECLARE(w04d);
+LV_IMG_DECLARE(w09d);
+LV_IMG_DECLARE(w10d);
+LV_IMG_DECLARE(w11d);
+LV_IMG_DECLARE(w50d);
+
+
+//-------------------structure-------------------//
 
 extern char daysOfTheWeek[7][12];
-extern char monthOfTheYear[12][20];
+extern char monthOfTheYear[12][4];
+extern char weather_code[8][4];
+extern char weather_code_night[8][4];
 
 uint8_t Day;
 uint8_t Week;
 uint8_t Month;
 int Year;
-lv_obj_t * Week_label;
-lv_obj_t * Day_label;
-lv_obj_t * weather_label;
-lv_obj_t * temperature;
-lv_obj_t * weather_icon;
 
 typedef struct clientData {
   int temp;
   int humidity;
+  char code[4];
+  char label[20];
 }clientData;
 
 clientData Data;
 
-lv_obj_t* humidity;
+//-------------------Screen1_var--------------------//
+
+uint8_t hour;
+uint8_t minute;
+lv_obj_t * hour_label;
+lv_obj_t * minute_label;
+
+//-----------------Screen_weather_var--------------------//
+
+lv_obj_t * Week_label;
+lv_obj_t * Day_label;
+
+//--------------------------------------------------------//
 
 enum Screen{Screen1 = 1, Screen2 = 2, Screen3 = 3, Scr_weather = 4};
 enum Screen cur_scr;
@@ -43,6 +70,9 @@ void ui_init_weather();
 void ui_init_3();
 void ui_init_2();
 void ui_init_1();
+
+void weather_icon_changer(lv_obj_t* target, int change_val);
+void icon_white_setup(lv_obj_t* target);
 
 #define _UI_TEMPORARY_STRING_BUFFER_SIZE 32
 #define _UI_BAR_PROPERTY_VALUE 0
@@ -130,4 +160,7 @@ void update_date(void);
 
 void ui_event_scr_by_click(lv_event_t * e);
 
+#ifdef __cplusplus
+} /*extern "C"*/
+#endif
 #endif

@@ -1,3 +1,6 @@
+#ifndef SCR2_H_INCLUDED
+#define SCR2_H_INCLUDED
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,4 +18,5 @@ void ui_Screen2_screen_init(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/
+#endif
 #endif

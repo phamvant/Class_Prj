@@ -7,6 +7,11 @@ extern "C" {
 
 #include "../lvgl/lvgl.h"
 
+lv_obj_t * weather_label;
+lv_obj_t * temperature;
+lv_obj_t * weather_icon;
+lv_obj_t* humidity;
+
 LV_IMG_DECLARE(weather_main_panel_bg);
 
 void ui_init_weather(void);

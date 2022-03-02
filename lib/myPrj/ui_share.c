@@ -220,3 +220,43 @@ void ui_event_scr_by_click(lv_event_t * e)
         break;
     }
 }
+
+void icon_white_setup(lv_obj_t * target)
+{
+    lv_obj_set_style_img_recolor(target, lv_color_white(), 0);
+    lv_obj_set_style_img_recolor_opa(target, 255, 0);
+}
+
+void weather_icon_changer(lv_obj_t* target, int change_val)
+{
+    switch (change_val)
+    {
+    case 1:
+        lv_img_set_src(target, &w01d);
+        break;
+    case 2:
+        lv_img_set_src(target, &w02d);
+        break;
+    case 3:
+        lv_img_set_src(target, &w03d);
+        break;
+    case 4:
+        lv_img_set_src(target, &w04d);
+        break;
+    case 5:
+        lv_img_set_src(target, &w09d);
+        break;
+    case 6:
+        lv_img_set_src(target, &w10d);
+        break;
+    case 7:
+        lv_img_set_src(target, &w11d);
+        break;
+    case 8:
+        lv_img_set_src(target, &w50d);
+        break;
+    
+    default:
+        break;
+    };
+}

@@ -14,7 +14,9 @@ static void weather_4_days(lv_obj_t* parent);
 
 //--------------------------STATIC VARIABLES--------------------------//
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-char monthOfTheYear[12][20] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+char monthOfTheYear[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+char weatherCode[8][5] = { "01d", "02d", "03d", "04d", "09d", "10d", "11d", "50d" };
+
 
 static lv_obj_t* ui_scr_weather;
 static lv_obj_t* main_panel;
@@ -183,7 +185,7 @@ static void weather_4_days(lv_obj_t* parent)
     lv_obj_set_size(day2_icon, lv_pct(30), lv_pct(50));
     lv_obj_t* day2_label = lv_label_create(panel);
     lv_obj_align(day2_label, LV_ALIGN_BOTTOM_MID, 5, -5);
-    lv_label_set_text_fmt(day2_label, "%d'C", 20);
+    lv_label_set_text_fmt(day2_label, "%d'C", 18);
 
     lv_obj_t* day3_icon = lv_img_create(panel);
     lv_img_set_src(day3_icon, &rain_cloud);
@@ -195,5 +197,5 @@ static void weather_4_days(lv_obj_t* parent)
     lv_obj_set_size(day3_icon, lv_pct(30), lv_pct(50));
     lv_obj_t* day3_label = lv_label_create(panel);
     lv_obj_align(day3_label, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
-    lv_label_set_text_fmt(day3_label, "%d'C", 20);
+    lv_label_set_text_fmt(day3_label, "%d'C", 21);
 }

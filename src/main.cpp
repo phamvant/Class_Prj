@@ -11,7 +11,6 @@
 
 #include "scr1.h"
 #include "scr2.h"
-#include "scr3.h"
 #include "scr_weather.h"
 #include "ui_share.h"
 
@@ -58,7 +57,6 @@ void keepWifiAlive(void * parameters)
             vTaskDelay(20000 / portTICK_PERIOD_MS);
             Serial.print("FreeHeap: ");
             Serial.println(ESP.getFreeHeap());
-            Memory_track();
             continue;
         }
         Serial.println("Wifi Connecting");
@@ -71,7 +69,6 @@ void keepWifiAlive(void * parameters)
         if(WiFi.status() != WL_CONNECTED) {
             Serial.println("Connected failed");
             vTaskDelay(20000 / portTICK_PERIOD_MS);
-            Memory_track();
             continue;
         }
     
@@ -108,6 +105,9 @@ String httpGETRequest(const char* serverName) {
     return payload;
 }
 
+char weather_code[8][4] = {"01d", "02d", "03d", "04d", "09d", "10d", "11d", "50d"};
+char weather_code_night[8][4] = {"01n", "02n", "03n", "04n", "09n", "10n", "11n", "50n"};
+
 void WeatherUpdate(void * parameters) {
     for(;;) {
         if(WiFi.status()== WL_CONNECTED){
@@ -127,11 +127,25 @@ void WeatherUpdate(void * parameters) {
             clientData Data;
             Data.temp = myObject["main"]["temp"];
             Data.humidity = myObject["main"]["humidity"];
-            lv_label_set_text_fmt(humidity, "%d'F", Data.humidity);
-            lv_label_set_text_fmt(temperature, "%d", Data.temp);
+            strcpy(Data.code, myObject["weather"][0]["icon"]);
+            strcpy(Data.label, myObject["weather"][0]["main"]);
             
+            for(int i = 0; i < 8; i++) {
+                if(!strcmp(Data.code, weather_code_night[i])) {
+                    weather_icon_changer(weather_icon, i);
+                    weather_icon_changer(weather_icon_scr1, i);
+                };
+            };
+
+            lv_label_set_text_fmt(humidity, "%dF", Data.humidity);
+            lv_label_set_text_fmt(temperature, "%d'F", Data.temp);
+            
+
             Serial.print("JSON object = ");
-            Serial.println(myObject);
+            Serial.println(myObject["main"]);
+            Serial.print("Icon = ");
+            Serial.println(Data.code);
+            
             vTaskDelete(WeatherUpdateTask);
         }
         else
@@ -298,7 +312,7 @@ void TaskSetup()
     
     xTaskCreatePinnedToCore(keepWifiAlive, "keepWiFi", 2200, NULL, 11, &KeepWifiTask, CONFIG_ARDUINO_RUNNING_CORE);
     xTaskCreate(UIHandle, "ui_handle", 5000, NULL, 10, &UIHandleTask);
-    xTaskCreatePinnedToCore(LocalTime, "time", 1200, NULL, 1, &LocalTimeTask, 1);
+    xTaskCreate(LocalTime, "time", 1200, NULL, 1, &LocalTimeTask);
     xTaskCreate(WeatherUpdate, "weather", 6000, NULL, 2, &WeatherUpdateTask);
 
 //------------------------BUILD PAGES------------------------//

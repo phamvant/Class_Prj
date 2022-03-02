@@ -8,7 +8,6 @@ static void panel_time_creat(lv_obj_t * parent);
 static void panel_weather_creat(lv_obj_t * parent);
 static void msg_box_creat(void);
 static void noti_btn_creat(lv_obj_t * parent);
-
 static void time_timer_cb(lv_timer_t * timer);
 
 //--------------------------STATIC VARIABLES--------------------------//
@@ -17,8 +16,6 @@ static lv_obj_t * boot_gif;
 static lv_obj_t * ui_Screen1;
 static lv_obj_t * left_panel;
 static lv_obj_t * right_panel;
-static lv_obj_t * weather_icon_scr1;
-static lv_obj_t * weather_label_scr1;
 static lv_obj_t * noti_btn;
 static lv_obj_t * noti_num;
 
@@ -122,6 +119,7 @@ static void panel_weather_creat(lv_obj_t * parent)
     weather_icon_scr1 = lv_img_create(right_panel);
     lv_img_set_src(weather_icon_scr1, &night_cloudy);
     lv_obj_align(weather_icon_scr1, LV_ALIGN_CENTER, 0, lv_pct(-25));
+    icon_white_setup(weather_icon_scr1);
 
     weather_label_scr1 = lv_label_create(right_panel);
     lv_obj_set_size(weather_label_scr1, 60, LV_SIZE_CONTENT);
@@ -161,7 +159,7 @@ static void noti_btn_creat(lv_obj_t * parent)
     noti_num = lv_label_create(noti_btn);
     lv_obj_center(noti_num);
     lv_obj_set_style_text_color(noti_num, lv_color_white(), 0);
-    lv_label_set_text_fmt(noti_num, "2");
+    lv_label_set_text_fmt(noti_num, "1");
 
     lv_anim_t float_noti;
     lv_anim_init(&float_noti);
