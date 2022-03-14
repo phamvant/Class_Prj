@@ -20,15 +20,15 @@
 #define LV_USE_UI 1
 #define LV_SETUP 1
 
-
 const int   phys_btn = 0;
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
 const int   daylightOffset_sec = 3600;
 
 String openWeatherMapApiKey = "c84fc3a54f52cfece19811689eb58f1f";
-String city = "Yen Bai";
+String city = "HaNoi";
 String countryCode = "VN";
+String jsonBuffer;
 
 void TaskSetup(void);
 
@@ -75,8 +75,6 @@ void keepWifiAlive(void * parameters)
         Serial.println("[WiFi] Connected: " + WiFi.localIP());
     }
 }
-
-String jsonBuffer;
 
 String httpGETRequest(const char* serverName) {
     WiFiClient client;
@@ -129,17 +127,19 @@ void WeatherUpdate(void * parameters) {
             Data.humidity = myObject["main"]["humidity"];
             strcpy(Data.code, myObject["weather"][0]["icon"]);
             strcpy(Data.label, myObject["weather"][0]["main"]);
-            
+        
+
             for(int i = 0; i < 8; i++) {
-                if(!strcmp(Data.code, weather_code_night[i])) {
+                if(!strcmp(Data.code, weather_code[i])) {
                     weather_icon_changer(weather_icon, i);
                     weather_icon_changer(weather_icon_scr1, i);
                 };
             };
 
-            lv_label_set_text_fmt(humidity, "%dF", Data.humidity);
-            lv_label_set_text_fmt(temperature, "%d'F", Data.temp);
-            
+            lv_label_set_text_fmt(humidity, "%d", Data.humidity);
+            lv_label_set_text_fmt(temperature, "%d Kelvin", Data.temp);
+            lv_label_set_text_fmt(weather_label_scr1, "%s !", Data.label);
+            lv_label_set_text_fmt(weather_label, "%s", Data.label);
 
             Serial.print("JSON object = ");
             Serial.println(myObject["main"]);
@@ -177,7 +177,6 @@ void LocalTime(void * pvParameters){
         }
     }
 }
-
 
 void IRAM_ATTR detectPress()
 {
@@ -312,8 +311,8 @@ void TaskSetup()
     
     xTaskCreatePinnedToCore(keepWifiAlive, "keepWiFi", 2200, NULL, 11, &KeepWifiTask, CONFIG_ARDUINO_RUNNING_CORE);
     xTaskCreate(UIHandle, "ui_handle", 5000, NULL, 10, &UIHandleTask);
-    xTaskCreate(LocalTime, "time", 1200, NULL, 1, &LocalTimeTask);
     xTaskCreate(WeatherUpdate, "weather", 6000, NULL, 2, &WeatherUpdateTask);
+    xTaskCreate(LocalTime, "time", 1200, NULL, 1, &LocalTimeTask);
 
 //------------------------BUILD PAGES------------------------//
     

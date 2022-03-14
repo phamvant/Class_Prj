@@ -15,9 +15,6 @@ extern "C" {
 #define WIFI_NETWORK "4T-Wifi-Connection"
 #define WIFI_PASSWORD "88888888"
 
-
-LV_IMG_DECLARE(night_cloudy);
-LV_IMG_DECLARE(rain_cloud);
 LV_IMG_DECLARE(w01d);
 LV_IMG_DECLARE(w02d);
 LV_IMG_DECLARE(w03d);
@@ -26,7 +23,6 @@ LV_IMG_DECLARE(w09d);
 LV_IMG_DECLARE(w10d);
 LV_IMG_DECLARE(w11d);
 LV_IMG_DECLARE(w50d);
-
 
 //-------------------structure-------------------//
 

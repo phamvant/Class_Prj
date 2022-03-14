@@ -117,8 +117,8 @@ static void panel_weather_creat(lv_obj_t * parent)
     lv_obj_add_style(right_panel, &panel_style, 0);
 
     weather_icon_scr1 = lv_img_create(right_panel);
-    lv_img_set_src(weather_icon_scr1, &night_cloudy);
-    lv_obj_align(weather_icon_scr1, LV_ALIGN_CENTER, 0, lv_pct(-25));
+    lv_img_set_src(weather_icon_scr1, &w01d);
+    lv_obj_align(weather_icon_scr1, LV_ALIGN_CENTER, 0, lv_pct(-15));
     icon_white_setup(weather_icon_scr1);
 
     weather_label_scr1 = lv_label_create(right_panel);

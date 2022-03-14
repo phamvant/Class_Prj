@@ -5,6 +5,10 @@
 
 #include "ui_share.h"
 
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+char monthOfTheYear[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+char weatherCode[8][5] = { "01d", "02d", "03d", "04d", "09d", "10d", "11d", "50d" };
+
 void _ui_bar_set_property(lv_obj_t * target, int id, int val)
 {
     if(id == _UI_BAR_PROPERTY_VALUE_WITH_ANIM) lv_bar_set_value(target, val, LV_ANIM_ON);
@@ -210,9 +214,6 @@ void ui_event_scr_by_click(lv_event_t * e)
     case 2:
         ui_init_2();
         break;
-    case 3:
-        ui_init_3();
-        break;
     case 4:
         ui_init_weather();
         break;
@@ -231,28 +232,28 @@ void weather_icon_changer(lv_obj_t* target, int change_val)
 {
     switch (change_val)
     {
-    case 1:
+    case 0:
         lv_img_set_src(target, &w01d);
         break;
-    case 2:
+    case 1:
         lv_img_set_src(target, &w02d);
         break;
-    case 3:
+    case 2:
         lv_img_set_src(target, &w03d);
         break;
-    case 4:
+    case 3:
         lv_img_set_src(target, &w04d);
         break;
-    case 5:
+    case 4:
         lv_img_set_src(target, &w09d);
         break;
-    case 6:
+    case 5:
         lv_img_set_src(target, &w10d);
         break;
-    case 7:
+    case 6:
         lv_img_set_src(target, &w11d);
         break;
-    case 8:
+    case 7:
         lv_img_set_src(target, &w50d);
         break;
     

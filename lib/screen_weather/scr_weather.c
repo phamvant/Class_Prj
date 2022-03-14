@@ -1,7 +1,6 @@
 ﻿#include "scr_weather.h"
 #include "ui_share.h"
 
-
 //--------------------------STATIC PROTOTYPES-------------------------//
 
 void ui_init_weather(void);
@@ -13,19 +12,11 @@ static void weather_4_days(lv_obj_t* parent);
 
 
 //--------------------------STATIC VARIABLES--------------------------//
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-char monthOfTheYear[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-char weatherCode[8][5] = { "01d", "02d", "03d", "04d", "09d", "10d", "11d", "50d" };
-
 
 static lv_obj_t* ui_scr_weather;
 static lv_obj_t* main_panel;
 static lv_obj_t* side_panel;
-
 static lv_style_t panel_style;
-uint8_t Week;
-uint8_t Day;
-uint8_t Month;
 
 //--------------------------GLOBAL FUNCTIONS--------------------------//
 
@@ -38,10 +29,12 @@ void ui_init_weather(void)
 void ui_weather_screen_init(void)
 {
     panel_style_init();
+    
     ui_scr_weather = lv_obj_create(NULL);
     lv_obj_add_flag(ui_scr_weather, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(ui_scr_weather, ui_event_scr_by_click, LV_EVENT_LONG_PRESSED, (void*)Screen2);
     lv_obj_set_style_bg_color(ui_scr_weather, lv_color_hex(0x353d4d), 0);
+
     lv_obj_set_style_pad_all(ui_scr_weather, 0, 0);
     side_panel_create(ui_scr_weather);
     main_panel_create(ui_scr_weather);
@@ -102,7 +95,7 @@ static void main_panel_create(lv_obj_t* parent)
     lv_label_set_text_fmt(temperature, "%d C", 19);
 
     weather_icon = lv_img_create(main_panel);
-    lv_img_set_src(weather_icon, &night_cloudy);
+    lv_img_set_src(weather_icon, &w01d);
     lv_img_set_zoom(weather_icon, 200);
     lv_obj_set_style_img_recolor(weather_icon, lv_color_white(), 0);
     lv_obj_set_style_img_recolor_opa(weather_icon, 255, 0);
@@ -150,7 +143,7 @@ static void side_panel_create(lv_obj_t* parent)
     lv_obj_t* wind = lv_label_create(side_panel);
     lv_obj_align(wind, LV_ALIGN_TOP_RIGHT, -10, 40);
     lv_obj_set_style_text_font(wind, &lv_font_montserrat_10, 0);
-    lv_label_set_text_fmt(wind, "%d", 100);
+    lv_label_set_text_fmt(wind, "%d", 15);
 
     weather_4_days(side_panel);
 }
@@ -164,7 +157,7 @@ static void weather_4_days(lv_obj_t* parent)
     lv_obj_set_size(panel, lv_pct(90), lv_pct(50));
 
     lv_obj_t* day1_icon = lv_img_create(panel);
-    lv_img_set_src(day1_icon, &rain_cloud);
+    lv_img_set_src(day1_icon, &w10d);
     lv_obj_set_style_pad_all(day1_icon, 0, 0);
     lv_obj_set_align(day1_icon, LV_ALIGN_TOP_LEFT);
     lv_obj_set_style_img_recolor(day1_icon, lv_color_white(), 0);
@@ -176,7 +169,7 @@ static void weather_4_days(lv_obj_t* parent)
     lv_label_set_text_fmt(day1_label, "%d'C", 20);
 
     lv_obj_t* day2_icon = lv_img_create(panel);
-    lv_img_set_src(day2_icon, &rain_cloud);
+    lv_img_set_src(day2_icon, &w10d);
     lv_obj_set_style_pad_all(day2_icon, 0, 0);
     lv_obj_align(day2_icon, LV_ALIGN_TOP_MID, -3, 0);
     lv_obj_set_style_img_recolor(day2_icon, lv_color_white(), 0);
@@ -188,7 +181,7 @@ static void weather_4_days(lv_obj_t* parent)
     lv_label_set_text_fmt(day2_label, "%d'C", 18);
 
     lv_obj_t* day3_icon = lv_img_create(panel);
-    lv_img_set_src(day3_icon, &rain_cloud);
+    lv_img_set_src(day3_icon, &w09d);
     lv_obj_set_style_pad_all(day3_icon, 0, 0);
     lv_obj_align(day3_icon, LV_ALIGN_TOP_RIGHT, -5, 0);
     lv_obj_set_style_img_recolor(day3_icon, lv_color_white(), 0);
