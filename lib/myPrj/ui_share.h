@@ -59,10 +59,12 @@ lv_obj_t * Day_label;
 
 //--------------------------------------------------------//
 
-enum Screen{Screen1 = 1, Screen2 = 2, Screen3 = 3, Scr_weather = 4};
+enum Screen{Screen1 = 1, Screen2, Screen3, Scr_weather, Scr_temp, Src_light};
 enum Screen cur_scr;
 
 void ui_init_weather();
+void ui_init_temp();
+void ui_init_light();
 void ui_init_3();
 void ui_init_2();
 void ui_init_1();

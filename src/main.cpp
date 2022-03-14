@@ -8,11 +8,53 @@
 #include <DHT.h>
 #include <Adafruit_Sensor.h>
 #include "time.h"
+#include <PubSubClient.h>
+#include <esp_now.h>
+#include <ThingSpeak.h>
 
 #include "scr1.h"
 #include "scr2.h"
 #include "scr_weather.h"
 #include "ui_share.h"
+#include "scr_temp.h"
+#include "scr_light.h"
+
+#define MQTT_SERVER "broker.mqttdashboard.com"
+#define MQTT_PORT 1883
+#define MQTT_LED1_TOPIC "MQTT_ESP32/LED1"
+#define LED 2
+
+typedef struct struct_message {
+    char a[32];
+    int b;
+    float c;
+    bool d;
+} struct_message;  
+
+struct_message myData;
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&myData, incomingData, sizeof(myData));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+  Serial.print("Char: ");
+  Serial.println(myData.a);
+  Serial.print("Int: ");
+  Serial.println(myData.b);
+  Serial.print("Float: ");
+  Serial.println(myData.c);
+  Serial.print("Bool: ");
+  Serial.println(myData.d);
+  Serial.println();
+}
+
+unsigned long previousMillis = 0; 
+const long interval = 5000;
+ 
+WiFiClient wifiClient;
+PubSubClient client(wifiClient);
+String ledStatus1 = "OFF";
+
 
 #define TEST 0
 
@@ -36,6 +78,7 @@ static TaskHandle_t KeepWifiTask = NULL;
 static TaskHandle_t LocalTimeTask = NULL;
 static TaskHandle_t UIHandleTask = NULL;
 static TaskHandle_t WeatherUpdateTask = NULL;
+static TaskHandle_t MQTTTask = NULL;
 
 void Memory_track(void)
 {
@@ -47,7 +90,67 @@ void Memory_track(void)
     Serial.println(uxTaskGetStackHighWaterMark(LocalTimeTask));
     Serial.print("Weather: ");
     Serial.println(uxTaskGetStackHighWaterMark(WeatherUpdateTask));
+    Serial.print("MQTT: ");
+    Serial.println(uxTaskGetStackHighWaterMark(MQTTTask));
 }
+
+void connect_to_broker() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    String clientId = "ESP32";
+    clientId += String(random(0xffff), HEX);
+    if (client.connect(clientId.c_str())) {
+      Serial.println("connected");
+      client.subscribe(MQTT_LED1_TOPIC);
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 2 seconds");
+      vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+  }
+}
+
+void callback(char* topic, byte *payload, unsigned int length) {
+  char status[20];
+  Serial.println("-------new message from broker-----");
+  Serial.print("topic: ");
+  Serial.println(topic);
+  Serial.print("message: ");
+  Serial.write(payload, length);
+  Serial.println();
+  for(int i = 0; i<length; i++)
+  {
+    status[i] = payload[i];
+  }
+  Serial.println(status);
+  Memory_track();
+  if(String(topic) == MQTT_LED1_TOPIC)
+  {
+    if(String(status) == "OFF")
+    {
+      ledStatus1 = "OFF";
+      digitalWrite(LED, LOW);
+      Serial.println("LED1 OFF");
+    }
+    else if(String(status) == "ON")
+    {
+      ledStatus1 = "ON";
+      digitalWrite(LED, HIGH);
+      Serial.println("LED1 ON");
+    }
+  }
+}
+
+void MQTTTest(void * parameters) {
+    for(;;){
+        client.loop();
+        if (!client.connected()) {
+            connect_to_broker();
+    }
+    }
+}
+
 
 void keepWifiAlive(void * parameters)
 {
@@ -55,12 +158,14 @@ void keepWifiAlive(void * parameters)
         if(WiFi.status() == WL_CONNECTED) {
             Serial.println("Wifi is still connected");
             vTaskDelay(20000 / portTICK_PERIOD_MS);
+            WiFi.disconnect();
             Serial.print("FreeHeap: ");
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
             Serial.println(ESP.getFreeHeap());
             continue;
         }
         Serial.println("Wifi Connecting");
-        WiFi.mode(WIFI_STA);
+        WiFi.mode(WIFI_MODE_APSTA);
         WiFi.begin(WIFI_NETWORK, WIFI_PASSWORD);
 
         unsigned long startAttemptTime = millis();
@@ -127,14 +232,15 @@ void WeatherUpdate(void * parameters) {
             Data.humidity = myObject["main"]["humidity"];
             strcpy(Data.code, myObject["weather"][0]["icon"]);
             strcpy(Data.label, myObject["weather"][0]["main"]);
-        
 
             for(int i = 0; i < 8; i++) {
-                if(!strcmp(Data.code, weather_code[i])) {
+                if(!strcmp(Data.code, weather_code[i]) || !strcmp(Data.code, weather_code_night[i])) {
                     weather_icon_changer(weather_icon, i);
                     weather_icon_changer(weather_icon_scr1, i);
                 };
             };
+
+            //Data write
 
             lv_label_set_text_fmt(humidity, "%d", Data.humidity);
             lv_label_set_text_fmt(temperature, "%d Kelvin", Data.temp);
@@ -267,6 +373,17 @@ void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
 void setup()
 {
     Serial.begin( 115200 ); /* prepare for possible serial debug */
+    WiFi.mode(WIFI_MODE_APSTA);
+    Serial.println(WiFi.macAddress());
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("Error initializing ESP-NOW");
+        return;
+    }else {
+        Serial.println("Success");
+    }
+    // Once ESPNow is successfully Init, we will register for recv CB to
+    // get recv packer info
+    esp_now_register_recv_cb(OnDataRecv);
     lv_init();
     
 #if LV_USE_LOG != 0
@@ -297,8 +414,19 @@ void setup()
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = my_touchpad_read;
     lv_indev_drv_register( &indev_drv );
+
 #endif
 
+    // WiFi.begin(WIFI_NETWORK, WIFI_PASSWORD);
+    // while (WiFi.status() != WL_CONNECTED) {
+    //     delay(500);
+    //     Serial.print(".");
+    // }
+    // client.setServer(MQTT_SERVER, MQTT_PORT );
+    // client.setCallback(callback);
+    // connect_to_broker();
+    // pinMode(LED, OUTPUT);
+    WiFi.disconnect();
     TaskSetup();
 }
 
@@ -309,16 +437,19 @@ void TaskSetup()
 
     attachInterrupt(digitalPinToInterrupt(phys_btn), detectPress, FALLING);
     
-    xTaskCreatePinnedToCore(keepWifiAlive, "keepWiFi", 2200, NULL, 11, &KeepWifiTask, CONFIG_ARDUINO_RUNNING_CORE);
-    xTaskCreate(UIHandle, "ui_handle", 5000, NULL, 10, &UIHandleTask);
-    xTaskCreate(WeatherUpdate, "weather", 6000, NULL, 2, &WeatherUpdateTask);
+    // xTaskCreatePinnedToCore(keepWifiAlive, "keepWiFi", 2200, NULL, 11, &KeepWifiTask, CONFIG_ARDUINO_RUNNING_CORE);
+    xTaskCreate(UIHandle, "ui_handle", 3200, NULL, 10, &UIHandleTask);
+    xTaskCreate(WeatherUpdate, "weather", 6000, NULL, 3, &WeatherUpdateTask);
     xTaskCreate(LocalTime, "time", 1200, NULL, 1, &LocalTimeTask);
+    // xTaskCreate(MQTTTest, "MQTT", 2500, NULL, 9, &MQTTTask);
 
 //------------------------BUILD PAGES------------------------//
     
     ui_Screen1_screen_init();
     ui_Screen2_screen_init();
     ui_weather_screen_init();
+    ui_scr_temp_init();
+    ui_screen_light_init();
     ui_init_1();
 
     #elif TEST

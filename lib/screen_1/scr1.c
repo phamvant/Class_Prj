@@ -124,7 +124,7 @@ static void panel_weather_creat(lv_obj_t * parent)
     weather_label_scr1 = lv_label_create(right_panel);
     lv_obj_set_size(weather_label_scr1, 60, LV_SIZE_CONTENT);
     lv_obj_align(weather_label_scr1, LV_ALIGN_CENTER, 0, lv_pct(15));
-    lv_label_set_text(weather_label_scr1, "Clear!\nGo Outside");
+    lv_label_set_text(weather_label_scr1, "Clear!");
 }
 
 //************NOTIFICATION**********//

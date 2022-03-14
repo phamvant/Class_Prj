@@ -150,7 +150,7 @@ static void panel_func1_create(lv_obj_t* parent)
     lv_obj_center(f1_icon);
 
     lv_obj_add_flag(f1_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(f1_icon, func_click, LV_EVENT_CLICKED, f1_icon_bg);
+    lv_obj_add_event_cb(f1_icon, ui_event_scr_by_click, LV_EVENT_CLICKED, (void*)Src_light);
 }
 
 static void panel_func2_create(lv_obj_t* parent)
@@ -190,7 +190,7 @@ static void panel_func3_create(lv_obj_t* parent)
     lv_obj_center(f3_icon);
 
     lv_obj_add_flag(f3_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(f3_icon, func_click, LV_EVENT_CLICKED, f3_icon_bg);
+    lv_obj_add_event_cb(f3_icon, ui_event_scr_by_click, LV_EVENT_CLICKED, (void*)Scr_temp);
 }
 
 static void panel_func4_create(lv_obj_t* parent)
@@ -210,7 +210,6 @@ static void panel_func4_create(lv_obj_t* parent)
     lv_obj_center(f4_icon);
 
     lv_obj_add_flag(f4_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(f4_icon, func_click, LV_EVENT_CLICKED, f4_icon_bg);
     lv_obj_add_event_cb(f4_icon, ui_event_scr_by_click, LV_EVENT_CLICKED, (void*)Scr_weather);
 }
 

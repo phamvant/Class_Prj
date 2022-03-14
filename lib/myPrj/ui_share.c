@@ -217,6 +217,12 @@ void ui_event_scr_by_click(lv_event_t * e)
     case 4:
         ui_init_weather();
         break;
+    case 5:
+        ui_init_temp();
+        break;
+    case 6:
+        ui_init_light();
+        break;
     default:
         break;
     }
